@@ -4,20 +4,27 @@ function generateForm(data) {
 
     const table = document.createElement('table');
     
-    data.rows.forEach((row) => {
+    data.rows.forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
         
-        row.forEach((cell) => {
+        row.forEach((cell, colIndex) => {
             let td;
 
             // セルの結合タイプに基づく処理
             if (cell.type === 'merge') {
                 if (cell.target === 'above') {
-                    return; // 上のセルと結合されるため、新たにセルを作らない
+                    // 上の行のセルを結合
+                    const aboveRow = table.rows[rowIndex - 1];
+                    const aboveCell = aboveRow.cells[colIndex];
+                    const rowspan = aboveCell.getAttribute('rowspan') || 1;
+                    aboveCell.setAttribute('rowspan', parseInt(rowspan) + 1);
+                    return; // 新たなセルを作らない
                 } else if (cell.target === 'left') {
-                    td = tr.lastElementChild; // 左隣のセルを結合対象にする
-                    td.setAttribute('rowspan', (parseInt(td.getAttribute('rowspan') || 1) + 1).toString());
-                    return;
+                    // 左隣のセルを結合対象にする
+                    td = tr.lastElementChild;
+                    const colspan = td.getAttribute('colspan') || 1;
+                    td.setAttribute('colspan', parseInt(colspan) + 1);
+                    return; // 新たなセルを作らない
                 }
             } else {
                 td = document.createElement('td');
